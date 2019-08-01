@@ -3,8 +3,6 @@ import lunr from 'lunr'
 import FlexSearch from 'flexsearch'
 import * as R from 'ramda'
 import lowerFirst from 'lodash.lowerfirst'
-import { echanceLunr } from "./common.js";
-
 const TYPE_PREFIX = 'LocalSearch'
 const TYPE_INDEX = 'Index'
 const TYPE_STORE = 'Store'
@@ -12,6 +10,25 @@ const TYPE_STORE = 'Store'
 const { generateTypeName, generateNodeId } = createNodeHelpers({
   typePrefix: TYPE_PREFIX,
 })
+
+
+function enhanceLunr(lunr, lngs){
+    if (lngs.length) {
+        import('lunr-languages/lunr.stemmer.support')(lunr)
+        lngs.forEach(({ name }) => {
+            if (name !== 'en') {
+                try {
+                    if (name === 'jp' || name === 'ja') {
+                        import(`lunr-languages/tinyseg`)(lunr)
+                    }
+                    import(`lunr-languages/lunr.${name}`)(lunr)
+                } catch (e) {
+                    console.log(e)
+                }
+            }
+        })
+    }
+}
 
 // Returns an exported FlexSearch index using the provided documents, fields,
 // and ref.
