@@ -1,5 +1,5 @@
 
-export const enhanceLunr = (lunr, lngs) => {
+export function enhanceLunr(lunr, lngs){
     if (lngs.length) {
         import('lunr-languages/lunr.stemmer.support')(lunr)
         lngs.forEach(({ name }) => {
