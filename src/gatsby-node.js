@@ -3,7 +3,7 @@ import lunr from 'lunr'
 import FlexSearch from 'flexsearch'
 import * as R from 'ramda'
 import lowerFirst from 'lodash.lowerfirst'
-import echanceLunr from "./common.js";
+import { echanceLunr } from "./common.js";
 
 const TYPE_PREFIX = 'LocalSearch'
 const TYPE_INDEX = 'Index'
@@ -26,7 +26,7 @@ const createFlexSearchIndexExport = ({ documents, ref }) => {
 // Returns an exported Lunr index using the provided documents, fields, and
 // ref.
 const createLunrIndexExport = ({ documents, fields, ref, languages }) => {
-  enhanceLunr(lunr, languages);
+  echanceLunr(lunr, languages);
   const index = lunr(function () {
     languages.forEach(name => { if (name !== "en") this.use(lunr[name]); });
     this.ref(ref)
