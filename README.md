@@ -35,7 +35,9 @@ module.exports = {
         // A unique name for the search index. This should be descriptive of
         // what the index contains. This is required.
         name: 'pages',
-
+        
+        //only if you are using lunr see https://github.com/MihaiValentin/lunr-languages
+        languages:['en','pt'],
         // Set the search engine to create the index. This is required.
         // The following engines are supported: flexsearch, lunr
         engine: 'flexsearch',
