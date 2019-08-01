@@ -3,6 +3,7 @@ import lunr from 'lunr'
 import FlexSearch from 'flexsearch'
 import * as R from 'ramda'
 import lowerFirst from 'lodash.lowerfirst'
+import echanceLunr from "./common.js";
 
 const TYPE_PREFIX = 'LocalSearch'
 const TYPE_INDEX = 'Index'
@@ -24,8 +25,10 @@ const createFlexSearchIndexExport = ({ documents, ref }) => {
 
 // Returns an exported Lunr index using the provided documents, fields, and
 // ref.
-const createLunrIndexExport = ({ documents, fields, ref }) => {
-  const index = lunr(function() {
+const createLunrIndexExport = ({ documents, fields, ref, languages }) => {
+  enhanceLunr(lunr, languages);
+  const index = lunr(function () {
+    languages.forEach(name => { if (name !== "en") this.use(lunr[name]); });
     this.ref(ref)
     fields.forEach(x => this.field(x))
     documents.forEach(x => this.add(x))
@@ -52,7 +55,28 @@ const createIndexExport = ({ reporter, name, engine, ...args }) => {
       return null
   }
 }
+export const onCreateWebpackConfig = ({ actions, plugins }, { languages = [] }) => {
+  const languageNames = new Set(languages.map(language => language.name));
 
+  actions.setWebpackConfig({
+    plugins: [
+      plugins.ignore({
+        checkResource(resource, context) {
+          if (/lunr-languages$/.test(context)) {
+            const match = resource.match(/lunr\.(\w+)/);
+            if (match !== null) {
+              const name = match[1];
+              if (!languageNames.has(name)) {
+                // Skip the resource.
+                return true;
+              };
+            }
+          }
+        }
+      })
+    ]
+  });
+}
 // Create index and store during createPages and save to cache. The cached
 // values will be used in createResolvers.
 export const createPages = async (

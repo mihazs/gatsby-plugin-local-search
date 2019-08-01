@@ -1,4 +1,6 @@
-# gatsby-plugin-local-search
+# gatsby-plugin-local-search-ml
+
+This is a fork of [gatsby-plugin-local-search]: https://github.com/angeloashmore/gatsby-plugin-local-search to make possible to select the language in lunr
 
 Gatsby plugin for providing client-side search for data available in Gatsby's
 GraphQL layer using a variety of engines.

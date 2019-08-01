@@ -1,6 +1,6 @@
 {
-  "name": "gatsby-plugin-local-search",
-  "version": "1.0.0",
+  "name": "gatsby-plugin-local-search-ml",
+  "version": "0.0.1",
   "description": "Gatsby plugin for providing client-side search for data available in Gatsby's GraphQL layer",
   "scripts": {
     "format": "prettier --write 'src/**/*.js' 'README.md'",
@@ -9,10 +9,10 @@
     "watch": "npm run build -- --watch",
     "release": "standard-version"
   },
-  "homepage": "https://github.com/angeloashmore/gatsby-plugin-local-search",
+  "homepage": "https://github.com/mihazs/gatsby-plugin-local-search",
   "repository": {
     "type": "git",
-    "url": "https://github.com/angeloashmore/gatsby-plugin-local-search.git"
+    "url": "https://github.com/mihazs/gatsby-plugin-local-search.git"
   },
   "keywords": [
     "gatsby",
@@ -20,7 +20,7 @@
     "lunr",
     "search"
   ],
-  "author": "Angelo Ashmore <angelo.ashmore@walltowall.com>",
+  "author": "Mihael Zamin <mihael.zamine@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.2.3",
@@ -37,6 +37,7 @@
     "gatsby-node-helpers": "^0.3.0",
     "lodash.lowerfirst": "^4.3.1",
     "lunr": "^2.3.6",
+    "lunr-languages": "^1.1.0",
     "ramda": "^0.26.1"
   },
   "peerDependencies": {
