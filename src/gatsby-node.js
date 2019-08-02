@@ -1,34 +1,21 @@
-import createNodeHelpers from 'gatsby-node-helpers'
-import lunr from 'lunr'
-import FlexSearch from 'flexsearch'
-import * as R from 'ramda'
-import lowerFirst from 'lodash.lowerfirst'
+const createNodeHelpers = require('gatsby-node-helpers');
+const lunr = require("lunr");
+const FlexSearch = require('flexsearch');
+const R = require('ramda');
+const lowerFirst = require('lodash.lowerfirst');
 const TYPE_PREFIX = 'LocalSearch'
 const TYPE_INDEX = 'Index'
 const TYPE_STORE = 'Store'
+const { enhanceLunr } = require("./common.js");
 
-const { generateTypeName, generateNodeId } = createNodeHelpers({
+
+
+const { generateTypeName, generateNodeId } = createNodeHelpers.default({
   typePrefix: TYPE_PREFIX,
 })
 
 
-function enhanceLunr(lunr, lngs){
-    if (lngs.length) {
-        import('lunr-languages/lunr.stemmer.support')(lunr)
-        lngs.forEach(({ name }) => {
-            if (name !== 'en') {
-                try {
-                    if (name === 'jp' || name === 'ja') {
-                        import(`lunr-languages/tinyseg`)(lunr)
-                    }
-                    import(`lunr-languages/lunr.${name}`)(lunr)
-                } catch (e) {
-                    console.log(e)
-                }
-            }
-        })
-    }
-}
+
 
 // Returns an exported FlexSearch index using the provided documents, fields,
 // and ref.
@@ -43,9 +30,11 @@ const createFlexSearchIndexExport = ({ documents, ref }) => {
 // Returns an exported Lunr index using the provided documents, fields, and
 // ref.
 const createLunrIndexExport = ({ documents, fields, ref, languages }) => {
-  echanceLunr(lunr, languages);
+  if (languages !== undefined)
+    enhanceLunr(lunr, languages);
   const index = lunr(function () {
-    languages.forEach(name => { if (name !== "en") this.use(lunr[name]); });
+    if (languages !== undefined)
+      languages.forEach(name => { if (name !== "en") this.use(lunr[name]); });
     this.ref(ref)
     fields.forEach(x => this.field(x))
     documents.forEach(x => this.add(x))
@@ -72,38 +61,41 @@ const createIndexExport = ({ reporter, name, engine, ...args }) => {
       return null
   }
 }
-export const onCreateWebpackConfig = ({ actions, plugins }, { languages = [] }) => {
-  const languageNames = new Set(languages.map(language => language.name));
-
-  actions.setWebpackConfig({
-    plugins: [
-      plugins.ignore({
-        checkResource(resource, context) {
-          if (/lunr-languages$/.test(context)) {
-            const match = resource.match(/lunr\.(\w+)/);
-            if (match !== null) {
-              const name = match[1];
-              if (!languageNames.has(name)) {
-                // Skip the resource.
-                return true;
-              };
+exports.onCreateWebpackConfig = ({ actions, plugins }, { languages = [] }) => {
+  const languageNames = languages;
+  if (languages !== undefined)
+    actions.setWebpackConfig({
+      plugins: [
+        plugins.ignore({
+          checkResource(resource, context) {
+            if (/lunr-languages$/.test(context)) {
+              const match = resource.match(/lunr\.(\w+)/);
+              if (match !== null) {
+                const name = match[1];
+                if (!languageNames.has(name)) {
+                  // Skip the resource.
+                  return true;
+                };
+              }
             }
           }
-        }
-      })
-    ]
-  });
+        })
+      ]
+    });
 }
 // Create index and store during createPages and save to cache. The cached
 // values will be used in createResolvers.
-export const createPages = async (
+exports.createPages = async (
   { graphql, cache, reporter },
-  { name, ref = 'id', store: storeFields, query, normalizer, engine },
+  { name, ref = 'id', store: storeFields, query, normalizer, engine, languages = ["pt"] },
 ) => {
+  var i = 0;
+
   const result = await graphql(query)
   if (result.errors) throw R.head(result.errors)
 
   const documents = await Promise.resolve(normalizer(result))
+
   if (R.isEmpty(documents))
     reporter.warn(
       `The gatsby-plugin-local-search query for index "${name}" returned no nodes. The index and store will be empty.`,
@@ -122,6 +114,7 @@ export const createPages = async (
     documents,
     fields,
     ref,
+    languages
   })
 
   // Default to all fields if storeFields is not provided
@@ -133,12 +126,12 @@ export const createPages = async (
   // Save to cache to use later in GraphQL resolver.
   await cache.set(generateNodeId(TYPE_INDEX, name), index)
   await cache.set(generateNodeId(TYPE_STORE, name), store)
-
+  console.log(i++);
   return
 }
 
 // Set the GraphQL type for LocalSearchIndex.
-export const createSchemaCustomization = (
+exports.createSchemaCustomization = (
   { actions: { createTypes }, schema },
   { name },
 ) => {
@@ -155,7 +148,7 @@ export const createSchemaCustomization = (
   ])
 }
 
-export const createResolvers = async (
+exports.createResolvers = async (
   { actions: { createTypes }, createResolvers, cache, schema },
   { name, engine },
 ) => {

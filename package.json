@@ -3,11 +3,9 @@
   "version": "0.0.1",
   "description": "Gatsby plugin for providing client-side search for data available in Gatsby's GraphQL layer",
   "scripts": {
-    "format": "prettier --write 'src/**/*.js' 'README.md'",
-    "build": "babel src --out-dir dist",
-    "prepublish": "npm run build",
-    "watch": "npm run build -- --watch",
-    "release": "standard-version"
+    "build": "babel src --out-dir . --ignore __tests__",
+    "watch": "babel -w src --out-dir . --ignore __tests__",
+    "prepare": "cross-env NODE_ENV=production npm run build"
   },
   "homepage": "https://github.com/mihazs/gatsby-plugin-local-search",
   "repository": {
@@ -22,16 +20,19 @@
   ],
   "author": "Mihael Zamin <mihael.zamine@gmail.com>",
   "license": "MIT",
+  "main": "index.js",
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.4.0",
-    "@babel/preset-env": "^7.4.1",
-    "@commitlint/cli": "^7.5.2",
-    "@commitlint/config-conventional": "^7.5.0",
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.3",
+    "@babel/plugin-transform-runtime": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "cross-env": "^5.0.5",
     "prettier": "^1.16.4",
     "standard-version": "^5.0.2"
   },
   "dependencies": {
+    "@babel/runtime": "^7.4.3",
     "flexsearch": "^0.6.21",
     "gatsby-node-helpers": "^0.3.0",
     "lodash.lowerfirst": "^4.3.1",
